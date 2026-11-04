@@ -19,6 +19,6 @@ P0 - Fluxo com LLM/
 ```
 
 ## Projetos
-
+### Como executar o Projeto
 - **[extrator-tarefas](./extrator-tarefas/README.md)**: Projeto de extração de tarefas utilizando LLM.
 
