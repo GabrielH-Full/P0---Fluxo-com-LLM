@@ -1,0 +1,5 @@
+ana | carlos revisam o "módulo de pagamentos" até sexta
+pedro: ação -> migrar banco; prazo: 20/11/2026
+lúcia escreve o FAQ (com ç, ã, é, ü) até amanhã
+<b>rafael</b> corrige o XSS & o SQL injection'; DROP TABLE tarefas;--
+emoji 🚀🔥 time de growth lança campanha na segunda

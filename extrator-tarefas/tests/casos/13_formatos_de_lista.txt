@@ -1,0 +1,9 @@
+# Ata da reunião
+
+## Tarefas
+- [ ] Maria: atualizar o roadmap (sexta)
+* João -> revisar métricas até amanhã
+1) Ana cria o dashboard
+2. Pedro valida os dados 25/11/2026
+
+> obs: Lucas talvez ajude
