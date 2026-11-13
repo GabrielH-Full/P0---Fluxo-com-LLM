@@ -1,0 +1,4 @@
+reunião de planejamento sprint 12
+maria implementa a tela de login até quinta
+pedro revisa o PR do carrinho amanhã
+lucas configura o CI até 20/11/2026

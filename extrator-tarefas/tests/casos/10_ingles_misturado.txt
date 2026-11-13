@@ -1,0 +1,5 @@
+weekly sync
+john will fix the login bug by friday
+maria faz o review do PR amanhã
+we need to update the README, peter
+deploy em staging até 18/11 — owner: ana

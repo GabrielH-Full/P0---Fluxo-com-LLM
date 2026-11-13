@@ -1,0 +1,4 @@
+joão e maria preparam a apresentação até sexta
+o time de backend corrige os endpoints
+pedro ou lucas, quem tiver tempo, revisa o PR
+todo mundo preenche a planilha de horas amanhã

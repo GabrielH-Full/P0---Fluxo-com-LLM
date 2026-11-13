@@ -69,3 +69,12 @@ python src/main.py --texto "pedro revisa o dashboard até quarta" --data 10/11/2
 # ver todas as opções
 python src/main.py --help
 ```
+
+# Como rodar (a partir da pasta extrator-tarefas, com o ambiente virtual ativado):
+
+```bash
+source .venv/bin/activate
+python tests/rodar_casos_local.py          # todos os casos
+python tests/rodar_casos_local.py 11 17    # só os casos que começam com 11 ou 17
+python tests/rodar_casos_local.py 16 -v    # mostra também o prompt que seria enviado ao LLM
+```

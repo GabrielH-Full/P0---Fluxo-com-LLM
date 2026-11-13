@@ -1,0 +1,4 @@
+reunião de alinhamento
+ficou decidido usar postgres em vez de mysql
+todos concordaram que o prazo está apertado
+conversamos sobre o evento de fim de ano

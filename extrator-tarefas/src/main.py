@@ -1,10 +1,15 @@
 import argparse
-import os
 import sys
 from datetime import date, datetime
 
+try:
+    import termios
+except ImportError:  # Windows
+    termios = None
+
 from config import obter_config, ConfigError
 from entrada import ler_entrada, validar_entrada, EntradaInvalidaError
+from erros import CODIGO_ERRO_INESPERADO, exibir_erro, exibir_erro_inesperado
 from prompt import montar_prompt
 from llm import chamar_llm, LLMError
 
@@ -18,18 +23,28 @@ def parse_data(valor: str) -> date:
 
 def _perguntar_salvar(resultado: str, data: date) -> None:
     try:
-        fd = os.open("/dev/tty", os.O_RDWR)
-        os.write(fd, b"\nSalvar lista em arquivo? [Y/N]: ")
-        chars = b""
-        while True:
-            ch = os.read(fd, 1)
-            if ch in (b"\n", b"\r") or not ch:
-                break
-            chars += ch
-        os.close(fd)
-        resposta = chars.decode("utf-8", errors="ignore").strip().upper()
-    except (OSError, KeyboardInterrupt):
+        tty_in = open("/dev/tty", "r", encoding="utf-8", errors="ignore")
+        tty_out = open("/dev/tty", "w", encoding="utf-8")
+    except OSError:
         return
+    with tty_in, tty_out:
+        # Descarta entrada pendente no terminal (ex.: Ctrl+D extra usado para
+        # finalizar a colagem das anotações), senão ela é lida como resposta vazia.
+        if termios is not None:
+            try:
+                termios.tcflush(tty_in.fileno(), termios.TCIFLUSH)
+            except (termios.error, OSError):
+                pass
+        resposta = ""
+        try:
+            for _ in range(3):
+                tty_out.write("\nSalvar lista em arquivo? [Y/N]: ")
+                tty_out.flush()
+                resposta = tty_in.readline().strip().upper()
+                if resposta in ("Y", "N"):
+                    break
+        except (OSError, KeyboardInterrupt):
+            return
     if resposta != "Y":
         return
     nome = f"tarefas_{data.strftime('%d-%m-%Y')}.txt"
@@ -70,8 +85,14 @@ def main():
         print(resultado)
         _perguntar_salvar(resultado, args.data)
     except (ConfigError, EntradaInvalidaError, LLMError) as e:
-        print(f"Erro: {e}", file=sys.stderr)
+        exibir_erro(str(e))
         sys.exit(1)
+    except KeyboardInterrupt:
+        exibir_erro("Operação cancelada pelo usuário.")
+        sys.exit(130)
+    except Exception as e:
+        exibir_erro_inesperado(e)
+        sys.exit(CODIGO_ERRO_INESPERADO)
 
 
 if __name__ == "__main__":
