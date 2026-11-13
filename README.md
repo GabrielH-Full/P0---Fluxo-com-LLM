@@ -62,5 +62,5 @@ P0 - Fluxo com LLM/
 
 ### Como executar o projeto
 
-> As instruções detalhadas de instalação e execução estão no RELATORIO_EXECUCAO do projeto: [RELATORIO_EXECUCA.md](./extrator-tarefas/RELATORIO_EXECUCAO.md).
+> As instruções detalhadas de instalação e execução estão no do projeto: [GuiaDeExecucao.md](./extrator-tarefas/GuiaDeExecucao.md).
 
