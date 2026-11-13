@@ -9,6 +9,7 @@ except ImportError:  # Windows
 
 from config import obter_config, ConfigError
 from entrada import ler_entrada, validar_entrada, EntradaInvalidaError
+from erros import CODIGO_ERRO_INESPERADO, exibir_erro, exibir_erro_inesperado
 from prompt import montar_prompt
 from llm import chamar_llm, LLMError
 
@@ -84,8 +85,14 @@ def main():
         print(resultado)
         _perguntar_salvar(resultado, args.data)
     except (ConfigError, EntradaInvalidaError, LLMError) as e:
-        print(f"Erro: {e}", file=sys.stderr)
+        exibir_erro(str(e))
         sys.exit(1)
+    except KeyboardInterrupt:
+        exibir_erro("Operação cancelada pelo usuário.")
+        sys.exit(130)
+    except Exception as e:
+        exibir_erro_inesperado(e)
+        sys.exit(CODIGO_ERRO_INESPERADO)
 
 
 if __name__ == "__main__":
