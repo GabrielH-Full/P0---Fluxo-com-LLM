@@ -17,8 +17,14 @@ class LLMError(Exception):
     pass
 
 
-def _mensagem_client_error(codigo: int) -> str:
-    if codigo in (401, 403):
+def _chave_invalida(erro: errors.ClientError) -> bool:
+    """O Gemini responde chave inválida com 400 + motivo API_KEY_INVALID (não 401)."""
+    return erro.code in (401, 403) or "API_KEY_INVALID" in str(erro.details)
+
+
+def _mensagem_client_error(erro: errors.ClientError) -> str:
+    codigo = erro.code
+    if _chave_invalida(erro):
         return "Chave de API inválida ou sem permissão. Verifique o GEMINI_API_KEY no .env."
     if codigo == 429:
         return "Limite de uso da API atingido. Aguarde e tente novamente."
@@ -49,7 +55,7 @@ def chamar_llm(system: str, user: str, config: dict) -> str:
         )
     except errors.ClientError as e:
         log.error("Erro do cliente na API (código %s) após %.2fs", e.code, time.perf_counter() - inicio)
-        raise LLMError(_mensagem_client_error(e.code)) from None
+        raise LLMError(_mensagem_client_error(e)) from None
     except errors.ServerError as e:
         log.error("Erro do servidor da API (código %s) após %.2fs", e.code, time.perf_counter() - inicio)
         raise LLMError("Serviço do LLM indisponível no momento. Tente novamente em instantes.") from None
