@@ -57,3 +57,39 @@
 - Os testes foram executados em uma cópia fora do projeto, com o Python do `.venv`, sem instalar dependências e sem chamadas ao LLM.
 
 **Legenda de status:** ✅ Atendido · ⚠️ Parcial · ❌ Ausente
+
+---
+
+# Reauditoria após as melhorias — 16/11/2026
+
+Implementação conforme `melhoriasAuditoria/TASKS.md` (commits `06bf96f` a `76e9198` na branch `P-avancado`).
+
+## Resumo
+- Atendidos: **5 de 5 requisitos** | **4 de 4 competências**
+- Situação geral: **Aprovado com ressalvas** (validação feita com Python 3.9.6, não com o 3.10+ documentado; validação por outra pessoa/computador ainda não feita)
+
+## Requisitos
+| ID | Requisito | Antes | Agora | Evidência |
+|---|---|---|---|---|
+| R1 | Configuração externa ao núcleo | ⚠️ | ✅ | `src/config.py:61` lê modelo, temperatura, top_p, max_tokens, timeout e prompt de sistema do `.env`, com padrões e validação; `.env.example` documenta todas as variáveis |
+| R2 | Logs sem dados sensíveis | ❌ | ✅ | `src/registro.py`; pontos em `src/main.py:90-114` e `src/llm.py:42-80`; `tests/test_llm.py` e `tests/test_config.py` verificam ausência de chave, anotações e resposta nos logs; `*.log` no `.gitignore` |
+| R3 | Versão do Python e bibliotecas | ⚠️ | ✅ | `.python-version` (3.10); `requirements.txt` com faixas e `httpx` declarado; `requirements-dev.txt`; `google.api_core` removido; imports externos (`google.genai`, `httpx`, `dotenv`, `pytest`) todos declarados |
+| R4 | Teste local sem chamada ao LLM | ⚠️ | ✅ | 66 testes pytest (`tests/test_*.py`) com `unittest.mock`/`monkeypatch`, cobrindo entrada, prompt, configuração, resposta e erros simulados; passam sem chave e sem rede |
+| R5 | Validação em ambiente limpo | ❌ | ✅ | `VALIDACAO.md`: clone + venv novo, comandos, resultados e 3 problemas com correção; guia com passo de clonar |
+
+## Competências
+| ID | Competência | Antes | Agora | Evidência |
+|---|---|---|---|---|
+| C01 | Código organizado para terceiros | ✅ | ✅ | Docstrings em todos os módulos de `src/`; guia descreve a estrutura e cada módulo |
+| C02 | Histórico do Git como evidência | ✅ | ✅ | 7 commits novos, um por fase, mensagens descritivas ligadas aos requisitos |
+| C03 | Falhas sem expor dados sensíveis | ⚠️ | ✅ | `src/llm.py:56-79` trata chave inválida (401/403/400 `API_KEY_INVALID`), 404, 429, 5xx, timeout, falha de conexão e resposta vazia; `from None` descarta a exceção original; `src/erros.py` mostra só o tipo do erro inesperado; confirmado com chamadas reais (400 e 503) |
+| C04 | Execução em outro ambiente | ⚠️ | ✅ | Validação em clone limpo instalando só pelo `requirements-dev.txt` (`VALIDACAO.md`) |
+
+## Riscos de segurança
+- Nenhum segredo versionado (`git ls-files` sem `.env` nem `*.log`; varredura por `AIza`, `AQ.`, `sk-`, `Bearer` sem valores reais).
+- `extrator-tarefas/.env` local: removidas as variáveis não usadas (`MODEL_NAME`, `LLM_BASE_URL`); a chave `AQ.****` segue fora do Git.
+
+## Pendências restantes
+- [ ] Recriar o `.venv` com Python 3.10+ e repetir a validação (T4.2): a máquina só tem Python 3.9.6
+- [ ] Validação por outra pessoa ou em outro computador (T7.2)
+- [ ] Push da branch e PR `P-avancado` → `main` (T8.3)
