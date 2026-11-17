@@ -37,8 +37,3 @@ python src/main.py --arquivo tests/casos/exemplo.txt --data 03/11/2026
 | 1 | Na versão anterior (`65f1427`), a aplicação quebrava ao iniciar no venv limpo: `ModuleNotFoundError: No module named 'google.api_core'`. O pacote só existia no venv antigo como sobra de bibliotecas que não estão no `requirements.txt`. | `src/llm.py` passou a usar as exceções do próprio SDK (`google.genai.errors`) e `httpx`, ambos declarados no `requirements.txt`. Confirmado: `google.api_core` não está instalado no venv limpo e a aplicação funciona. |
 | 2 | Com a chave de exemplo, o Gemini respondeu **400** (motivo `API_KEY_INVALID`), não 401; a mensagem exibida era genérica ("A API recusou a solicitação (código 400)"). | `src/llm.py` reconhece `API_KEY_INVALID` como chave inválida; teste adicionado em `tests/test_llm.py`. Revalidado: mensagem correta. |
 | 3 | A primeira chamada com a chave real recebeu **503** (instabilidade do serviço do Google). | Nenhuma correção de código necessária: o erro foi tratado com mensagem amigável. A segunda tentativa funcionou. |
-
-### Pendências
-
-- [ ] Repetir esta validação com **Python 3.10+** (versão documentada em `.python-version`). A máquina usada só tinha Python 3.9.6, que funciona, mas está fora de suporte e gera avisos do `google-auth`.
-- [ ] (Ideal) Repetir em outro computador ou com outra pessoa seguindo só o guia.
