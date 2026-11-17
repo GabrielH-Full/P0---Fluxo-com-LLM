@@ -12,6 +12,7 @@ Uso (a partir da pasta extrator-tarefas):
 import contextlib
 import glob
 import io
+import logging
 import os
 import sys
 import types
@@ -34,7 +35,14 @@ sys.modules["llm"] = types.SimpleNamespace(chamar_llm=chamar_llm_falso, LLMError
 
 import main  # noqa: E402
 
-main.obter_config = lambda: None                 # não exige .env / chave
+CONFIG_FALSA = {
+    "api_key": "chave-falsa", "modelo": "modelo-falso", "temperatura": 0.0,
+    "top_p": 1.0, "max_tokens": 1024, "timeout_segundos": 30, "prompt_sistema": None,
+}
+main.obter_config = lambda: CONFIG_FALSA          # não exige .env / chave
+main.load_dotenv = lambda *a, **k: None           # não lê o .env real
+main.configurar_logs = lambda: None               # logs não poluem a saída dos casos
+logging.disable(logging.CRITICAL)
 main._perguntar_salvar = lambda resultado, data: None  # não trava esperando Y/N
 
 DATA = "13/11/2026"
@@ -56,7 +64,7 @@ def rodar(argv):
         return "OK", out.getvalue().strip().splitlines()[-1][:90]
     primeira_linha = err.getvalue().strip().splitlines()[0][:90]
     if codigo == main.CODIGO_ERRO_INESPERADO:  # main capturou um erro não previsto
-        detalhe = next((l for l in err.getvalue().splitlines() if "Detalhe técnico" in l), primeira_linha)
+        detalhe = next((l for l in err.getvalue().splitlines() if "Tipo do erro" in l), primeira_linha)
         return "QUEBRA", detalhe.strip()[:90]
     return "ERRO", primeira_linha  # erro tratado, com mensagem
 

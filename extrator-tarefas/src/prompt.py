@@ -1,4 +1,6 @@
+"""Monta o prompt enviado ao LLM (instruções de sistema + mensagem do usuário)."""
 from datetime import date
+from typing import Optional, Tuple
 
 SYSTEM_PROMPT = """Você é um assistente que transforma anotações de reunião em uma lista de tarefas.
 
@@ -11,9 +13,16 @@ Regras:
 - Responda em português do Brasil. Não inclua nenhum texto além da lista."""
 
 
-def montar_prompt(anotacoes: str, data_referencia: date) -> tuple[str, str]:
+def montar_prompt(anotacoes: str, data_referencia: date,
+                  prompt_sistema: Optional[str] = None) -> Tuple[str, str]:
+    """Devolve (system, user).
+
+    Usa o prompt de sistema recebido (vindo de LLM_SYSTEM_PROMPT_ARQUIVO) ou,
+    se ausente, o SYSTEM_PROMPT embutido. As anotações vão delimitadas por
+    <anotacoes> para o modelo tratá-las como dados, não como instruções.
+    """
     user = (
         f"Data de referência: {data_referencia.strftime('%d/%m/%Y')}\n\n"
         f"<anotacoes>\n{anotacoes}\n</anotacoes>"
     )
-    return SYSTEM_PROMPT, user
+    return prompt_sistema or SYSTEM_PROMPT, user

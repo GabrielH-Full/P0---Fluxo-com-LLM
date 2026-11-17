@@ -47,8 +47,8 @@ def mensagem_erro_inesperado(erro: BaseException) -> str:
     """Qualquer erro não previsto: a aplicação quebrou."""
     return "\n".join([
         "Ocorreu um erro inesperado e a aplicação não conseguiu continuar.",
-        f"Detalhe técnico: {type(erro).__name__}: {erro}",
-        "Para ver o erro completo, rode novamente com a variável EXTRATOR_DEBUG=1, ex.:",
+        f"Tipo do erro: {type(erro).__name__}",
+        "Para ver o detalhe completo, rode novamente com a variável EXTRATOR_DEBUG=1, ex.:",
         "  EXTRATOR_DEBUG=1 python src/main.py ...",
     ])
 

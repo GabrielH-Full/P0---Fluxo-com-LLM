@@ -1,5 +1,8 @@
+"""Ponto de entrada: lê as anotações, monta o prompt, chama o LLM e exibe as tarefas."""
 import argparse
+import logging
 import sys
+import time
 from datetime import date, datetime
 
 try:
@@ -7,11 +10,16 @@ try:
 except ImportError:  # Windows
     termios = None
 
-from config import obter_config, ConfigError
+from dotenv import load_dotenv
+
+from config import obter_config, resumo_seguro, ConfigError
 from entrada import ler_entrada, validar_entrada, EntradaInvalidaError
 from erros import CODIGO_ERRO_INESPERADO, exibir_erro, exibir_erro_inesperado
 from prompt import montar_prompt
 from llm import chamar_llm, LLMError
+from registro import configurar_logs
+
+log = logging.getLogger("extrator")
 
 
 def parse_data(valor: str) -> date:
@@ -76,23 +84,36 @@ def main():
     )
     args = parser.parse_args()
 
+    load_dotenv()
+    configurar_logs()
+    inicio = time.perf_counter()
+    log.info("Início da execução")
+    codigo = 0
     try:
         config = obter_config()
+        log.info("Configuração carregada: %s", resumo_seguro(config))
         texto_bruto = args.texto if args.texto else ler_entrada(args.arquivo)
         anotacoes = validar_entrada(texto_bruto)
-        system, user = montar_prompt(anotacoes, args.data)
+        log.info("Entrada válida: %d caracteres", len(anotacoes))
+        system, user = montar_prompt(anotacoes, args.data, config["prompt_sistema"])
         resultado = chamar_llm(system, user, config)
         print(resultado)
         _perguntar_salvar(resultado, args.data)
     except (ConfigError, EntradaInvalidaError, LLMError) as e:
+        log.error("Execução interrompida: %s", type(e).__name__)
         exibir_erro(str(e))
-        sys.exit(1)
+        codigo = 1
     except KeyboardInterrupt:
+        log.warning("Execução cancelada pelo usuário")
         exibir_erro("Operação cancelada pelo usuário.")
-        sys.exit(130)
+        codigo = 130
     except Exception as e:
+        log.error("Erro inesperado: %s", type(e).__name__)
         exibir_erro_inesperado(e)
-        sys.exit(CODIGO_ERRO_INESPERADO)
+        codigo = CODIGO_ERRO_INESPERADO
+    log.info("Fim da execução (código %d, %.2fs)", codigo, time.perf_counter() - inicio)
+    if codigo:
+        sys.exit(codigo)
 
 
 if __name__ == "__main__":
